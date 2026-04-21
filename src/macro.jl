@@ -4,11 +4,17 @@
 function _perfetto_macro(f, expr)
     quote
         Profile.clear()
+        _gc_start_logging()
         local _t0 = time_ns()
-        Profile.@profile 🐔🚀🧦(() -> $(esc(expr)))
+        try
+            Profile.@profile 🐔🚀🧦(() -> $(esc(expr)))
+        finally
+            _gc_stop_logging()
+        end
         local _wall_ns = time_ns() - _t0
         data, lidict = Profile.retrieve(; include_meta = true)
-        $(f)(data, lidict; filter_sentinel = true, wall_time_ns = _wall_ns)
+        gc_events = _collect_gc_events()
+        $(f)(data, lidict; filter_sentinel = true, wall_time_ns = _wall_ns, gc_events = gc_events)
     end
 end
 

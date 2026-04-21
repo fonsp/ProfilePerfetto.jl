@@ -9,9 +9,14 @@ import Dates
 
 include("sentinel.jl")
 include("samples.jl")
+include("gc.jl")
 include("json.jl")
 include("display.jl")
 include("view.jl")
 include("macro.jl")
+
+function __init__()
+    _gc_init_callbacks()
+end
 
 end # module
