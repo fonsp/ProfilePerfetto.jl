@@ -4,6 +4,8 @@
 
 View Julia profiles as an interactive [Perfetto](https://ui.perfetto.dev) flame chart. You can view a profile directly in Pluto, VS Code and Jupyter. Or launch Perfetto in your default browser from the REPL.
 
+The goal of this package is to give a super-simple-to-use profiling tool, but still provide a nice UI with some features like a flame chart.
+
 ```julia
 using ProfilePerfetto
 
