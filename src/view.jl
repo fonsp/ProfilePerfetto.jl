@@ -15,6 +15,7 @@ function perfetto_view(
     name::String = _default_name(),
     filter_sentinel::Bool = false,
     wall_time_ns::Union{Nothing,UInt64} = nothing,
+    alloc_results = nothing,
 )
     json_contents = _samples_to_perfetto_json(
         data,
@@ -22,6 +23,7 @@ function perfetto_view(
         sample_interval_us = _profile_delay_us(),
         filter_sentinel,
         wall_time_ns,
+        alloc_results,
     )
     b64 = Base64.base64encode(json_contents)
     id = String(rand('a':'z', 10))
@@ -74,6 +76,7 @@ function perfetto_open(
     name::String = _default_name(),
     filter_sentinel::Bool = false,
     wall_time_ns::Union{Nothing,UInt64} = nothing,
+    alloc_results = nothing,
 )
     json_contents = _samples_to_perfetto_json(
         data,
@@ -81,6 +84,7 @@ function perfetto_open(
         sample_interval_us = _profile_delay_us(),
         filter_sentinel,
         wall_time_ns,
+        alloc_results,
     )
     b64 = Base64.base64encode(json_contents)
     html = """<!DOCTYPE html><html><body style="margin:0">

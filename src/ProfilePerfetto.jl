@@ -9,6 +9,7 @@ import Dates
 
 include("sentinel.jl")
 include("samples.jl")
+include("allocs.jl")
 include("json.jl")
 include("display.jl")
 include("view.jl")
