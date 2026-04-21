@@ -1,6 +1,6 @@
 module ProfilePerfetto
 
-export @perfetto, profileperfetto_view, profileperfetto_open
+export @perfetto, perfetto_view, perfetto_open
 
 import Profile
 import JSON
@@ -243,7 +243,7 @@ end
 """
     PerfettoDisplay
 
-Returned by [`profileperfetto_view`](@ref). Renders as an embedded
+Returned by [`perfetto_view`](@ref). Renders as an embedded
 [Perfetto](https://ui.perfetto.dev) trace viewer when displayed in a
 Pluto, VS Code or Jupyter notebook cell.
 """
@@ -339,7 +339,7 @@ function _overlay_html()
 end
 
 """
-    profileperfetto_view(data = Profile.fetch(; include_meta = false),
+    perfetto_view(data = Profile.fetch(; include_meta = false),
                          lidict = Profile.getdict(data);
                          name = "Julia profile")
 
@@ -347,9 +347,9 @@ Converts Julia profile sample data to an embedded [Perfetto](https://ui.perfetto
 trace viewer. Returns a [`PerfettoDisplay`](@ref) that renders as an interactive
 trace when displayed in a Pluto, VS Code or Jupyter notebook cell.
 
-See also: [`@perfetto`](@ref), [`profileperfetto_open`](@ref).
+See also: [`@perfetto`](@ref), [`perfetto_open`](@ref).
 """
-function profileperfetto_view(
+function perfetto_view(
     data::Vector{UInt64} = Profile.fetch(; include_meta = true),
     lidict = Profile.getdict(data);
     name::String = _default_name(),
@@ -398,7 +398,7 @@ function profileperfetto_view(
 end
 
 """
-    profileperfetto_open(data = Profile.fetch(; include_meta = false),
+    perfetto_open(data = Profile.fetch(; include_meta = false),
                          lidict = Profile.getdict(data);
                          name = "Julia profile")
 
@@ -406,7 +406,7 @@ Opens the current Julia profile in the default web browser using the
 [Perfetto](https://ui.perfetto.dev) trace viewer. Returns the path to the
 temporary HTML file that was opened.
 """
-function profileperfetto_open(
+function perfetto_open(
     data::Vector{UInt64} = Profile.fetch(; include_meta = true),
     lidict = Profile.getdict(data);
     name::String = _default_name(),
@@ -487,7 +487,7 @@ macro perfetto(expr)
         Profile.clear()
         Profile.@profile 🐔🚀🧦(() -> $(esc(expr)))
         data, lidict = Profile.retrieve(; include_meta = true)
-        profileperfetto_view(data, lidict; filter_sentinel = true)
+        perfetto_view(data, lidict; filter_sentinel = true)
     end
 end
 

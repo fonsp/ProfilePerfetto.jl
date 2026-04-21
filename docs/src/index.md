@@ -52,7 +52,7 @@ click on a bar to see the file and line number.
 
 !!! tip "Not in a notebook?"
     If you're in the plain Julia REPL, use
-    [`profileperfetto_open`](@ref) instead — it opens the chart in your
+    [`perfetto_open`](@ref) instead — it opens the chart in your
     default browser.
 
 ## What's next?

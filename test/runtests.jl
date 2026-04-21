@@ -5,8 +5,8 @@ using JSON
 @testset "ProfilePerfetto" begin
     @testset "exports" begin
         @test isdefined(ProfilePerfetto, Symbol("@perfetto"))
-        @test isdefined(ProfilePerfetto, :profileperfetto_view)
-        @test isdefined(ProfilePerfetto, :profileperfetto_open)
+        @test isdefined(ProfilePerfetto, :perfetto_view)
+        @test isdefined(ProfilePerfetto, :perfetto_open)
     end
 
     @testset "empty sample buffer -> valid JSON with no events" begin
@@ -37,8 +37,8 @@ using JSON
         @test s.sleepstate == 1
     end
 
-    @testset "profileperfetto_view returns a PerfettoDisplay" begin
-        disp = profileperfetto_view(UInt64[], Dict())
+    @testset "perfetto_view returns a PerfettoDisplay" begin
+        disp = perfetto_view(UInt64[], Dict())
         @test disp isa ProfilePerfetto.PerfettoDisplay
         @test occursin("ui.perfetto.dev", disp.html)
         # MIME rendering works

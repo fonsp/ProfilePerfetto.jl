@@ -80,10 +80,10 @@ directly, or from a long-running session. Two options:
 
 ```julia
 # View what's already in the Profile buffer (in a notebook)
-profileperfetto_view()
+perfetto_view()
 
 # Open it in your browser (works anywhere, including the plain REPL)
-profileperfetto_open()
+perfetto_open()
 ```
 
 Both accept the same `data, lidict` pair that `Profile.fetch` returns, so you
@@ -98,7 +98,7 @@ Profile.@profile my_workload()
 data   = Profile.fetch(; include_meta = true)
 lidict = Profile.getdict(data)
 
-profileperfetto_view(data, lidict; name = "Today's run")
+perfetto_view(data, lidict; name = "Today's run")
 ```
 
 ## Common gotchas

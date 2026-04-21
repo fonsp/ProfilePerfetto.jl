@@ -68,7 +68,7 @@ Profile.@profile my_workload()
 data   = Profile.fetch(; include_meta = true)
 lidict = Profile.getdict(data)
 
-profileperfetto_view(data, lidict)
+perfetto_view(data, lidict)
 ```
 
 ## Profiling a specific task
@@ -87,7 +87,7 @@ Profile.take_heap_snapshot  # for memory — profiling is similar
 # around the task; see the stdlib docs for the exact current API in your
 # Julia version.
 
-profileperfetto_view()
+perfetto_view()
 ```
 
 ## Clearing the buffer
@@ -112,7 +112,7 @@ composes with ProfilePerfetto. A few highlights worth knowing:
 - `Profile.Allocs` — allocation profiler (tracks *where* you allocate, not
   where you spend CPU time). ProfilePerfetto only handles the CPU profiler.
 - `Profile.fetch(; include_meta = true)` — raw sample data, ready to pass
-  into [`profileperfetto_view`](@ref) or [`profileperfetto_open`](@ref).
+  into [`perfetto_view`](@ref) or [`perfetto_open`](@ref).
 
 ## Cheat sheet
 
@@ -131,5 +131,5 @@ my_workload()
 # 3'. Profile + visualize from the REPL
 Profile.clear()
 Profile.@profile my_workload()
-profileperfetto_open()
+perfetto_open()
 ```

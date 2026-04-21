@@ -8,8 +8,8 @@ CurrentModule = ProfilePerfetto
 
 ```@docs
 @perfetto
-profileperfetto_view
-profileperfetto_open
+perfetto_view
+perfetto_open
 PerfettoDisplay
 ```
 
