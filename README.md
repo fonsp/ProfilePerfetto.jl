@@ -15,4 +15,6 @@ using ProfilePerfetto
 # Video showcase
 In this video, you see some of the features of Perfetto in action.
 
-https://raw.githubusercontent.com/fonsp/ProfilePerfetto.jl/main/docs/src/assets/perfetto%20video%20demo.mp4
+
+https://github.com/user-attachments/assets/be74a099-0ab1-4b71-9fb3-44e3925083f2
+
