@@ -4,9 +4,11 @@
 function _perfetto_macro(f, expr)
     quote
         Profile.clear()
+        local _t0 = time_ns()
         Profile.@profile 🐔🚀🧦(() -> $(esc(expr)))
+        local _wall_ns = time_ns() - _t0
         data, lidict = Profile.retrieve(; include_meta = true)
-        $(f)(data, lidict; filter_sentinel = true)
+        $(f)(data, lidict; filter_sentinel = true, wall_time_ns = _wall_ns)
     end
 end
 

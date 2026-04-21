@@ -7,6 +7,7 @@ function _samples_to_perfetto_json(
     lidict;
     sample_interval_us::Float64 = 1000.0,
     filter_sentinel::Bool = false,
+    wall_time_ns::Union{Nothing,UInt64} = nothing,
 )
     samples = _parse_samples(data)
     events = Any[]
@@ -20,24 +21,37 @@ function _samples_to_perfetto_json(
         ),
     )
 
-    # Group by thread and sort by real ns timestamp so each thread has a
-    # contiguous sample stream, independent of interleaving in the raw buffer.
+    # Group by thread and sort by tick timestamp so each thread has a contiguous
+    # sample stream, independent of interleaving in the raw buffer.
     by_thread = Dict{UInt64,Vector{Sample}}()
     for s in samples
         push!(get!(by_thread, s.thread_id, Sample[]), s)
     end
     for v in values(by_thread)
-        sort!(v; by = s -> s.timestamp_ns)
+        sort!(v; by = s -> s.timestamp_ticks)
     end
 
-    # Normalize timestamps so the earliest sample across all threads sits at t=0.
-    t0 = minimum(s.timestamp_ns for s in samples)
+    # Calibrate ticks → ns. Profile metadata timestamps come from `cycleclock()`,
+    # which is rdtsc on x86 (~GHz) and cntvct_el0 on ARM (~24 MHz on Apple
+    # Silicon) — neither is nanoseconds. If we know the wall-clock duration the
+    # profile ran for, derive ns-per-tick from the sample tick span. Otherwise
+    # assume ticks ≈ ns, which is wrong on every real platform but at least
+    # produces a trace that loads.
+    t0_ticks = minimum(s.timestamp_ticks for s in samples)
+    t1_ticks = maximum(s.timestamp_ticks for s in samples)
+    ns_per_tick::Float64 = 1.0
+    if wall_time_ns !== nothing && t1_ticks > t0_ticks
+        ns_per_tick = Float64(wall_time_ns) / Float64(t1_ticks - t0_ticks)
+    end
 
     for (tid, thread_samples) in by_thread
         stacks = [
             _stack_frames(s.stack, lidict; filter_sentinel) for s in thread_samples
         ]
-        ts_us = [Float64(Int64(s.timestamp_ns) - Int64(t0)) / 1000 for s in thread_samples]
+        ts_us = [
+            Float64(Int64(s.timestamp_ticks) - Int64(t0_ticks)) * ns_per_tick / 1000
+            for s in thread_samples
+        ]
 
         prev = Tuple{String,String,Int}[]
         last_t::Float64 = 0.0

@@ -23,7 +23,7 @@ using JSON
             0x1111, 0x2222,           # ips (leaf-first)
             42,                       # thread_id
             7,                        # task_id
-            1_000_000,                # timestamp_ns
+            1_000_000,                # timestamp_ticks
             1,                        # sleepstate (awake)
             0, 0,                     # block-end marker
         ]
@@ -33,7 +33,7 @@ using JSON
         @test s.stack == UInt64[0x1111, 0x2222]
         @test s.thread_id == 42
         @test s.task_id == 7
-        @test s.timestamp_ns == 1_000_000
+        @test s.timestamp_ticks == 1_000_000
         @test s.sleepstate == 1
     end
 

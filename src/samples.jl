@@ -13,7 +13,8 @@ struct Sample
     stack::Vector{UInt64}    # instruction pointers, leaf-first
     thread_id::UInt64
     task_id::UInt64
-    timestamp_ns::UInt64     # from jl_hrtime(), monotonic
+    timestamp_ticks::UInt64  # from cycleclock() — rdtsc on x86, cntvct_el0 on
+                             # ARM. Not nanoseconds; needs calibration to ns.
     sleepstate::UInt64       # 1 = awake, 2 = sleeping, 3 = task-profiler fake
 end
 
