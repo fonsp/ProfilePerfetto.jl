@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this package does
 
-ProfilePerfetto.jl converts Julia's built-in `Profile` stdlib sample data into a [Perfetto](https://ui.perfetto.dev) trace and embeds the Perfetto UI in an iframe (Pluto / VS Code / Jupyter) or opens it in the browser. The user-facing API is `@perfetto`, `perfetto_view`, and `perfetto_open`.
+ProfilePerfetto.jl converts Julia's built-in `Profile` stdlib sample data into a [Perfetto](https://ui.perfetto.dev) trace and embeds the Perfetto UI in an iframe (Pluto / VS Code / Jupyter) or opens it in the browser. The user-facing API is `@perfetto_view` (alias `@perfetto`), `@perfetto_open`, `perfetto_view`, and `perfetto_open`.
 
 ## Commands
 

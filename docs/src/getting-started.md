@@ -33,7 +33,7 @@ end
 ## Step 2 — Profile it
 
 ```julia
-@perfetto count_primes(50_000)
+@perfetto_view count_primes(50_000)
 ```
 
 This macro does three things:
@@ -67,11 +67,19 @@ gun: replace `2:(n-1)` with `2:isqrt(n)` and re-run.
 After your fix:
 
 ```julia
-@perfetto count_primes(50_000)
+@perfetto_view count_primes(50_000)
 ```
 
 The `is_prime` bar should shrink dramatically. Profiling isn't just for
 *finding* problems — it's also how you *confirm* you fixed them. 🎯
+
+## Which macro to use?
+
+- **`@perfetto expr`** / **`@perfetto_view expr`** — profiles `expr` and renders
+  the chart inline in a Pluto, VS Code, or Jupyter notebook. `@perfetto` is an
+  exported alias for `@perfetto_view`.
+- **`@perfetto_open expr`** — profiles `expr` and opens the chart in your default
+  web browser. Use this in the plain REPL.
 
 ## Profiling without the macro
 
