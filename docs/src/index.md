@@ -3,7 +3,7 @@
 *Profile your Julia code and view the results in a beautiful, interactive flame chart.* 🔥
 
 ```@raw html
-<p><img alt="Screenshot of a Perfetto flame chart" src="https://ui.perfetto.dev/assets/brand.png" style="max-width: 240px"></p>
+<p><img alt="Screenshot of a Perfetto traces" src="./assets/perfetto traces.png" style="max-width: 500px"></p>
 ```
 
 ProfilePerfetto.jl is a tiny bridge between Julia's built-in
