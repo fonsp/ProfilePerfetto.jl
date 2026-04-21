@@ -51,4 +51,43 @@ using JSON
         disp = @perfetto sum(sin, 1:10_000)
         @test disp isa ProfilePerfetto.PerfettoDisplay
     end
+
+    @testset "GC events appear in JSON as X slices on the GC track" begin
+        gc_events = [
+            ProfilePerfetto.GCEvent(1_000_000, 1_500_000, false, 1),
+            ProfilePerfetto.GCEvent(2_000_000, 3_200_000, true, 2),
+        ]
+        json_str = ProfilePerfetto._samples_to_perfetto_json(
+            UInt64[], Dict(); gc_events = gc_events,
+        )
+        parsed = JSON.parse(json_str)
+        slices = [e for e in parsed["traceEvents"] if get(e, "ph", "") == "X"]
+        @test length(slices) == 2
+        @test all(e -> e["tid"] == 0 && e["pid"] == 1, slices)
+        # Normalized relative to the earliest GC event's start_ns.
+        @test slices[1]["ts"] == 0.0
+        @test slices[1]["dur"] == 500.0
+        @test slices[1]["name"] == "GC (incremental)"
+        @test slices[2]["ts"] == 1000.0
+        @test slices[2]["dur"] == 1200.0
+        @test slices[2]["name"] == "GC (full)"
+        # The GC track gets a thread_name metadata event.
+        names = [e for e in parsed["traceEvents"]
+                 if get(e, "ph", "") == "M" && get(e, "name", "") == "thread_name"]
+        @test any(e -> e["tid"] == 0 && e["args"]["name"] == "GC", names)
+    end
+
+    @testset "@perfetto captures GC events when the workload allocates" begin
+        # Force several GCs inside the profiled block.
+        disp = @perfetto begin
+            for _ in 1:5
+                xs = [rand(1000) for _ in 1:1000]
+                GC.gc()
+            end
+        end
+        @test disp isa ProfilePerfetto.PerfettoDisplay
+        events = ProfilePerfetto._collect_gc_events()
+        @test length(events) >= 1
+        @test all(e -> e.end_ns >= e.start_ns, events)
+    end
 end
