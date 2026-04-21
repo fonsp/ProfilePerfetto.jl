@@ -1,6 +1,6 @@
 module ProfilePerfetto
 
-export @perfetto, perfetto_view, perfetto_open
+export @perfetto, @perfetto_open, @perfetto_view, perfetto_view, perfetto_open
 
 import Profile
 import JSON
