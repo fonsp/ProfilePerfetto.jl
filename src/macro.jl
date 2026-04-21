@@ -2,13 +2,30 @@
 
 
 function _perfetto_macro(f, expr)
+    # We drive `Profile.Allocs` via its `start`/`stop` functions rather than its
+    # `@profile` macro: the macro takes `sample_rate` as a keyword-like arg, but
+    # Julia's hygiene pass renames that symbol when the call is nested inside
+    # our own `quote` block, causing `UndefKeywordError: sample_rate`.
     quote
         Profile.clear()
+        Profile.Allocs.clear()
+        Profile.Allocs.start(; sample_rate = 0.01)
         local _t0 = time_ns()
-        Profile.@profile 🐔🚀🧦(() -> $(esc(expr)))
+        try
+            Profile.@profile 🐔🚀🧦(() -> $(esc(expr)))
+        finally
+            Profile.Allocs.stop()
+        end
         local _wall_ns = time_ns() - _t0
         data, lidict = Profile.retrieve(; include_meta = true)
-        $(f)(data, lidict; filter_sentinel = true, wall_time_ns = _wall_ns)
+        local _allocs = Profile.Allocs.fetch()
+        $(f)(
+            data,
+            lidict;
+            filter_sentinel = true,
+            wall_time_ns = _wall_ns,
+            alloc_results = _allocs,
+        )
     end
 end
 

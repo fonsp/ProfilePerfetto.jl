@@ -8,18 +8,22 @@ function _samples_to_perfetto_json(
     sample_interval_us::Float64 = 1000.0,
     filter_sentinel::Bool = false,
     wall_time_ns::Union{Nothing,UInt64} = nothing,
+    alloc_results = nothing,
 )
     samples = _parse_samples(data)
     events = Any[]
-    isempty(samples) && return JSON.json(
-        Dict(
-            "traceEvents" => events,
-            "metadata" => Dict(
-                "clock-domain" => "MONO",
-                "command_line" => "Julia Profile",
+    if isempty(samples)
+        _allocs_to_events!(events, alloc_results, nothing; filter_sentinel)
+        return JSON.json(
+            Dict(
+                "traceEvents" => events,
+                "metadata" => Dict(
+                    "clock-domain" => "MONO",
+                    "command_line" => "Julia Profile",
+                ),
             ),
-        ),
-    )
+        )
+    end
 
     # Group by thread and sort by tick timestamp so each thread has a contiguous
     # sample stream, independent of interleaving in the raw buffer.
@@ -118,6 +122,9 @@ function _samples_to_perfetto_json(
             )
         end
     end
+
+    cpu_wall_us = wall_time_ns === nothing ? nothing : Float64(wall_time_ns) / 1000
+    _allocs_to_events!(events, alloc_results, cpu_wall_us; filter_sentinel)
 
     return JSON.json(
         Dict(
