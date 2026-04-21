@@ -21,7 +21,7 @@ end
 
 Base.show(io::IO, ::PerfettoDisplay) = print(
     io,
-    "PerfettoDisplay (render in a Pluto, VS Code or Jupyter notebook to see the interactive trace)",
+    "PerfettoDisplay (to render in a Pluto, VS Code or Jupyter notebook to see the interactive trace).\n\nSeeing this in the REPL? Use `@perfetto_open` instead to open the trace in a web browser.",
 )
 
 function _overlay_html()
