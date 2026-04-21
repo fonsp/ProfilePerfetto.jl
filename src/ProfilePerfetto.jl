@@ -17,6 +17,22 @@ const _SENTINEL_NAME = "🐔🚀🧦"
 
 🐔🚀🧦(f::Function) = f()
 
+const _PERFETTO_TIPS = [
+    "Use <kbd>W</kbd>/<kbd>S</kbd> to zoom in and out, and <kbd>A</kbd>/<kbd>D</kbd> to pan left and right.",
+    "Press <kbd>/</kbd> to search across all slices and threads by name.",
+    "Press <kbd>?</kbd> inside Perfetto to see the full list of keyboard shortcuts.",
+    "Drag on the time ruler at the top to select a time range — the details panel then shows aggregated stats for the selection.",
+    "Click a slice, then press <kbd>M</kbd> to mark its timespan so it stays highlighted as you navigate.",
+    "Hold <kbd>Shift</kbd> and scroll to zoom smoothly around the mouse cursor.",
+    "Pin a track by clicking the pin icon on its left edge to keep it visible while scrolling.",
+    "The <strong>Flame Graph</strong> tab at the bottom aggregates the current selection into a single flame chart.",
+    "Right-click a slice and choose <em>Show in Query</em> to explore the trace with SQL.",
+    "Use <kbd>Ctrl</kbd>+<kbd>F</kbd> (or <kbd>⌘</kbd>+<kbd>F</kbd>) to re-focus the search box at any time.",
+    "You can drop any Perfetto trace file onto the Perfetto window to open it — great for comparing profiles.",
+    "Slices are colored by name: functions with the same name share a color, which helps spot hot code paths.",
+    "Double-click a slice to zoom the timeline to exactly its extent.",
+]
+
 ### ---- Sample parsing
 
 # One sample with per-thread metadata, as produced by Profile.fetch(; include_meta = true).
@@ -248,16 +264,77 @@ Base.show(io::IO, ::PerfettoDisplay) = print(
     "PerfettoDisplay (render in a Pluto, VS Code or Jupyter notebook to see the interactive trace)",
 )
 
-const _overlay_html = """<div id="overlay" style="
-          position:fixed;top:0;left:0;width:100vw;height:100vh;
-          background:rgba(255,255,255,0.5);
-          display:flex;align-items:center;justify-content:center;
-          transition:opacity 0.4s ease;">
-          <div style="text-align:left">
-           <span style="font:bold 3rem system-ui;white-space:nowrap">Loading...</span><br>
-           <span style="font:1rem system-ui;opacity:0.7">Click <strong>Yes</strong> in the next dialog</span>
-         </div>
+function _overlay_html()
+    tip = rand(_PERFETTO_TIPS)
+    return """<style>
+          @keyframes pp-shimmer {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+          @keyframes pp-bounce {
+            0%, 80%, 100% { transform: translateY(0);     opacity: 0.4; }
+            40%           { transform: translateY(-0.4em); opacity: 1;   }
+          }
+          @keyframes pp-fadein {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0);   }
+          }
+          #overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(120deg,
+              rgba(255,255,255,0.85), rgba(235,240,255,0.85),
+              rgba(255,240,245,0.85), rgba(255,255,255,0.85));
+            background-size: 300% 300%;
+            animation: pp-shimmer 6s ease-in-out infinite;
+            transition: opacity 0.4s ease;
+            font-family: system-ui, -apple-system, sans-serif;
+          }
+          #overlay .card {
+            text-align: left; animation: pp-fadein 0.5s ease both;
+          }
+          #overlay .title {
+            font: bold 3rem system-ui; white-space: nowrap;
+            background: linear-gradient(90deg, #6a5acd, #ff6ec7, #6a5acd);
+            background-size: 200% 100%; -webkit-background-clip: text;
+            background-clip: text; color: transparent;
+            animation: pp-shimmer 3s linear infinite;
+          }
+          #overlay .dot {
+            display: inline-block; width: 0.5em; height: 0.5em;
+            margin: 0 0.08em; border-radius: 50%; background: #6a5acd;
+            animation: pp-bounce 1.2s ease-in-out infinite;
+          }
+          #overlay .dot:nth-child(2) { animation-delay: 0.15s; background: #b56ad0; }
+          #overlay .dot:nth-child(3) { animation-delay: 0.30s; background: #ff6ec7; }
+          #overlay .hint {
+            margin-top: 0.3em; font: 1rem system-ui; opacity: 0.75;
+          }
+          #overlay .tip {
+            margin-top: 1.8em; max-width: 34em;
+            font: 0.95rem system-ui; color: #333;
+            padding: 0.8em 1em; border-left: 3px solid #6a5acd;
+            background: rgba(255,255,255,0.6); border-radius: 4px;
+          }
+          #overlay .tip-label {
+            font-size: 0.75rem; letter-spacing: 0.12em;
+            text-transform: uppercase; color: #6a5acd; font-weight: 600;
+            margin-bottom: 0.3em;
+          }
+        </style>
+        <div id="overlay">
+          <div class="card">
+            <span class="title">Loading</span><span class="title"
+              ><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+            <div class="hint">Click <strong>Yes</strong> in the next dialog</div>
+            <div class="tip">
+              <div class="tip-label">Perfetto tip</div>
+              $(tip)
+            </div>
+          </div>
         </div>"""
+end
 
 """
     profileperfetto_view(data = Profile.fetch(; include_meta = false),
@@ -288,7 +365,7 @@ function profileperfetto_view(
         <div style="width: 100%; height: clamp(650px, 90vh, 1000px);">
         <iframe id="$id" src="https://ui.perfetto.dev"
           style="width:100%;height:100%;border:7px solid yellow;border-radius: 12px; box-sizing: border-box;"></iframe>
-          $(_overlay_html)
+          $(_overlay_html())
         <script>
         const b64 = "$b64";
         const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
@@ -341,7 +418,7 @@ function profileperfetto_open(
     html = """<!DOCTYPE html><html><body style="margin:0">
         <iframe id="pf" src="https://ui.perfetto.dev"
           style="width:100vw;height:100vh;border:none;position:fixed;top:0;left:0"></iframe>
-        $(_overlay_html)
+        $(_overlay_html())
         <script>
         const b64 = "$b64";
         const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
