@@ -31,7 +31,7 @@ using Profile, ProfilePerfetto
 
 Profile.init(n = 10^7, delay = 0.0001)   # 100 μs → 10 kHz
 
-@perfetto short_but_important()
+@perfetto_view short_but_important()
 ```
 
 You'll probably also need to bump `n`, because 10× the sample rate produces
@@ -45,7 +45,7 @@ so much data that your browser chokes rendering the chart. Try:
 ```julia
 Profile.init(n = 10^7, delay = 0.01)     # 10 ms → 100 Hz
 
-@perfetto long_batch_job()
+@perfetto_view long_batch_job()
 ```
 
 You lose fine detail, but the big hotspots still dominate — statistically,
@@ -93,7 +93,7 @@ perfetto_view()
 ## Clearing the buffer
 
 Profile data is cumulative — if you `Profile.@profile` twice without clearing,
-the samples pile up. `@perfetto` calls [`Profile.clear`](https://docs.julialang.org/en/v1/stdlib/Profile/#Profile.clear)
+the samples pile up. `@perfetto_view` and `@perfetto_open` call [`Profile.clear`](https://docs.julialang.org/en/v1/stdlib/Profile/#Profile.clear)
 for you, but if you're using `Profile.@profile` directly, do it yourself:
 
 ```julia
@@ -126,10 +126,8 @@ Profile.init(n = 10^7, delay = 0.0001)
 my_workload()
 
 # 3. Profile + visualize in a notebook
-@perfetto my_workload()
+@perfetto_view my_workload()
 
 # 3'. Profile + visualize from the REPL
-Profile.clear()
-Profile.@profile my_workload()
-perfetto_open()
+@perfetto_open my_workload()
 ```
