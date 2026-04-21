@@ -9,3 +9,10 @@ using ProfilePerfetto
 
 @perfetto my_expensive_function(args...)
 ```
+
+![Perfetto traces](docs/src/assets/perfetto%20traces.png)
+
+# Video showcase
+In this video, you see some of the features of Perfetto in action.
+
+<video src="docs/src/assets/perfetto%20video%20demo.mov" controls width="100%"></video>
