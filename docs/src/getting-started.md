@@ -75,8 +75,9 @@ The `is_prime` bar should shrink dramatically. Profiling isn't just for
 
 ## Which macro to use?
 
-- **`@perfetto_view expr`** — profiles `expr` and renders the chart inline in a
-  Pluto, VS Code, or Jupyter notebook. `@perfetto` is an alias for this.
+- **`@perfetto expr`** / **`@perfetto_view expr`** — profiles `expr` and renders
+  the chart inline in a Pluto, VS Code, or Jupyter notebook. `@perfetto` is an
+  exported alias for `@perfetto_view`.
 - **`@perfetto_open expr`** — profiles `expr` and opens the chart in your default
   web browser. Use this in the plain REPL.
 
