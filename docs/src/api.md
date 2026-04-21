@@ -7,7 +7,7 @@ CurrentModule = ProfilePerfetto
 ## Exported
 
 ```@docs
-@profileperfetto
+@perfetto
 profileperfetto_view
 profileperfetto_open
 PerfettoDisplay

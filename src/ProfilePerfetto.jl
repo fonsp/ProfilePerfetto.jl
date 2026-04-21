@@ -1,6 +1,6 @@
 module ProfilePerfetto
 
-export @profileperfetto, profileperfetto_view, profileperfetto_open
+export @perfetto, profileperfetto_view, profileperfetto_open
 
 import Profile
 import JSON
@@ -347,7 +347,7 @@ Converts Julia profile sample data to an embedded [Perfetto](https://ui.perfetto
 trace viewer. Returns a [`PerfettoDisplay`](@ref) that renders as an interactive
 trace when displayed in a Pluto, VS Code or Jupyter notebook cell.
 
-See also: [`@profileperfetto`](@ref), [`profileperfetto_open`](@ref).
+See also: [`@perfetto`](@ref), [`profileperfetto_open`](@ref).
 """
 function profileperfetto_view(
     data::Vector{UInt64} = Profile.fetch(; include_meta = true),
@@ -466,7 +466,7 @@ end
 ### ---- The macro
 
 """
-    @profileperfetto expr
+    @perfetto expr
 
 Profiles `expr` using Julia's built-in `Profile` stdlib and returns a
 [`PerfettoDisplay`](@ref) that renders the samples as an interactive
@@ -479,10 +479,10 @@ Existing profile data is cleared before running `expr`.
 ```julia
 using ProfilePerfetto
 
-@profileperfetto my_expensive_function(args...)
+@perfetto my_expensive_function(args...)
 ```
 """
-macro profileperfetto(expr)
+macro perfetto(expr)
     quote
         Profile.clear()
         Profile.@profile 🐔🚀🧦(() -> $(esc(expr)))

@@ -4,7 +4,7 @@ using JSON
 
 @testset "ProfilePerfetto" begin
     @testset "exports" begin
-        @test isdefined(ProfilePerfetto, Symbol("@profileperfetto"))
+        @test isdefined(ProfilePerfetto, Symbol("@perfetto"))
         @test isdefined(ProfilePerfetto, :profileperfetto_view)
         @test isdefined(ProfilePerfetto, :profileperfetto_open)
     end
@@ -47,8 +47,8 @@ using JSON
         @test !isempty(String(take!(io)))
     end
 
-    @testset "@profileperfetto runs and returns a PerfettoDisplay" begin
-        disp = @profileperfetto sum(sin, 1:10_000)
+    @testset "@perfetto runs and returns a PerfettoDisplay" begin
+        disp = @perfetto sum(sin, 1:10_000)
         @test disp isa ProfilePerfetto.PerfettoDisplay
     end
 end

@@ -7,5 +7,5 @@ View Julia profiles as an interactive [Perfetto](https://ui.perfetto.dev) flame 
 ```julia
 using ProfilePerfetto
 
-@profileperfetto my_expensive_function(args...)
+@perfetto my_expensive_function(args...)
 ```

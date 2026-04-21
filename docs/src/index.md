@@ -43,7 +43,7 @@ function slow_thing()
     return x
 end
 
-@profileperfetto slow_thing()
+@perfetto slow_thing()
 ```
 
 Run that cell in **Pluto**, **VS Code**, or **Jupyter**, and you'll see an

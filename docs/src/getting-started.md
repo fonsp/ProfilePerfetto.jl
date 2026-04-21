@@ -33,7 +33,7 @@ end
 ## Step 2 — Profile it
 
 ```julia
-@profileperfetto count_primes(50_000)
+@perfetto count_primes(50_000)
 ```
 
 This macro does three things:
@@ -67,7 +67,7 @@ gun: replace `2:(n-1)` with `2:isqrt(n)` and re-run.
 After your fix:
 
 ```julia
-@profileperfetto count_primes(50_000)
+@perfetto count_primes(50_000)
 ```
 
 The `is_prime` bar should shrink dramatically. Profiling isn't just for
