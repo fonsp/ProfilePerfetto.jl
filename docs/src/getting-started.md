@@ -79,10 +79,10 @@ Sometimes you already have profile data — maybe collected with `Profile.@profi
 directly, or from a long-running session. Two options:
 
 ```julia
-# View what's already in the Profile buffer (in a notebook)
+# View what's already in the Profile buffer (in an IDE)
 perfetto_view()
 
-# Open it in your browser (works anywhere, including the plain REPL)
+# Create HTML file and open in your browser (works anywhere, including the plain REPL)
 perfetto_open()
 ```
 
