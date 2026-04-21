@@ -23,13 +23,6 @@ function is currently running*. After a few seconds of sampling, the most
 frequently-seen functions are almost certainly your bottleneck — no guessing
 required.
 
-## Installation
-
-```julia
-using Pkg
-Pkg.add("ProfilePerfetto")
-```
-
 ## A 30-second example
 
 ```julia
