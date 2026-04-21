@@ -293,23 +293,22 @@ function _overlay_html()
           }
           #overlay .card {
             text-align: left; animation: pp-fadein 0.5s ease both;
+            color: #000;
           }
           #overlay .title {
             font: bold 3rem system-ui; white-space: nowrap;
-            background: linear-gradient(90deg, #6a5acd, #ff6ec7, #6a5acd);
-            background-size: 200% 100%; -webkit-background-clip: text;
-            background-clip: text; color: transparent;
             animation: pp-shimmer 3s linear infinite;
           }
           #overlay .dot {
             display: inline-block; width: 0.5em; height: 0.5em;
-            margin: 0 0.08em; border-radius: 50%; background: #6a5acd;
+            margin: 0 0.08em; border-radius: 50%; background: #6ea96a;
             animation: pp-bounce 1.2s ease-in-out infinite;
           }
-          #overlay .dot:nth-child(2) { animation-delay: 0.15s; background: #b56ad0; }
-          #overlay .dot:nth-child(3) { animation-delay: 0.30s; background: #ff6ec7; }
+          #overlay .dot:nth-child(2) { animation-delay: 0.15s; background: #9f83b8; }
+          #overlay .dot:nth-child(3) { animation-delay: 0.30s; background: #c97b73; }
           #overlay .hint {
             margin-top: 0.3em; font: 1rem system-ui; opacity: 0.75;
+            color: #000;
           }
           #overlay .tip {
             margin-top: 1.8em; max-width: 34em;
@@ -321,6 +320,9 @@ function _overlay_html()
             font-size: 0.75rem; letter-spacing: 0.12em;
             text-transform: uppercase; color: #6a5acd; font-weight: 600;
             margin-bottom: 0.3em;
+          }
+          kbd {
+            color: black;
           }
         </style>
         <div id="overlay">
@@ -385,8 +387,10 @@ function profileperfetto_view(
               title: "$(name)",
             }
           }, 'https://ui.perfetto.dev');
-          overlay.style.opacity = '0';
-          setTimeout(() => overlay.remove(), 400);
+          setTimeout(() => {
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 400);
+          }, 300);
         });
         </script>
         </div>"""
@@ -438,8 +442,10 @@ function profileperfetto_open(
               title: "$(name)",
             }
           }, 'https://ui.perfetto.dev');
-          overlay.style.opacity = '0';
-          setTimeout(() => overlay.remove(), 400);
+          setTimeout(() => {
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 400);
+          }, 300);
         });
         </script>
         </body></html>"""
