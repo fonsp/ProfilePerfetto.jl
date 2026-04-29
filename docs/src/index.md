@@ -43,14 +43,22 @@ Run that cell in **Pluto**, **VS Code**, or **Jupyter**, and you'll see an
 interactive flame chart appear right below it. Drag to pan, scroll to zoom,
 click on a bar to see the file and line number.
 
+`@perfetto` automatically calibrates the sampling rate for you — there's no
+`delay` knob to tune. The trade-off: it runs your code a few times to do so.
+
+!!! warning "Your code runs multiple times"
+    `@perfetto` evaluates the expression several times while calibrating. If
+    it has observable side effects (mutating state, I/O, network calls),
+    wrap the workload in something idempotent first, or hand pre-collected
+    profile data to [`perfetto_view`](@ref).
+
 !!! tip "Not in a notebook?"
-    If you're in the plain Julia REPL, use
-    [`@perfetto_open`](@ref) instead — it opens the chart in your
-    default browser.
+    From the plain Julia REPL, use [`@perfetto_open`](@ref) instead — it
+    opens the chart in your default browser.
 
 ## What's next?
 
 - [Getting started](@ref) — a friendly walk-through for anyone new to profiling.
-- [Tuning the profiler](@ref) — sampling rate, buffer size, and other knobs
-  from `Profile` that change what your chart looks like.
+- [Tuning the profiler](@ref) — calibration knobs and how to feed in your own
+  profile data.
 - [API reference](@ref) — every exported name, spelled out.
