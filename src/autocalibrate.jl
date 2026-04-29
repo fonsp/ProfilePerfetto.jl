@@ -100,19 +100,19 @@ function _autocalibrate(
         coarser   = target > delay
 
         if frac > 0.95
-            @warn "@perfetto: buffer filled at Δ=$(_fmt_delay(delay)); trace truncated. Consider raising `min_delay`."
+            @warn "🪣💥 @perfetto: buffer filled at Δ=$(_fmt_delay(delay)); trace truncated. Consider raising `min_delay`."
         end
         if inflation > max_inflation * 1.5
-            @warn "@perfetto: sampling overhead inflated runtime $(round(inflation; digits = 1))× at Δ=$(_fmt_delay(delay))."
+            @warn "🐢 @perfetto: sampling overhead inflated runtime $(round(inflation; digits = 1))× at Δ=$(_fmt_delay(delay))."
         end
 
         if at_floor || converged || last_one || too_fast || coarser
-            @info "@perfetto: $(_fmt_time(T)) at Δ=$(_fmt_delay(delay)) " *
+            @info "🎯 @perfetto: $(_fmt_time(T)) at Δ=$(_fmt_delay(delay)) " *
                   "($(round(Int, 100frac))% buffer, $(round(inflation; digits = 1))× baseline, round $round_i)"
             break
         end
 
-        @info "@perfetto: calibrating — $(_fmt_time(T)) at Δ=$(_fmt_delay(delay)) ($(round(inflation; digits = 1))×), sharpening to Δ=$(_fmt_delay(target))"
+        @info "🔬 @perfetto: calibrating — $(_fmt_time(T)) at Δ=$(_fmt_delay(delay)) ($(round(inflation; digits = 1))×), sharpening to Δ=$(_fmt_delay(target))"
         delay = target
     end
 
