@@ -33,15 +33,21 @@ end
 ## Step 2 — Profile it
 
 ```julia
-@perfetto_view count_primes(50_000)
+@perfetto count_primes(50_000)
 ```
 
-This macro does three things:
+That's it. Behind the scenes, `@perfetto`:
 
-1. Clears any old profile data (`Profile.clear()`).
-2. Runs your expression under `Profile.@profile`, which samples the call
-   stack many times per second.
-3. Hands the samples to Perfetto and renders an interactive chart.
+1. Runs your expression once at a coarse sampling rate to see how long it takes.
+2. Runs it again with a sharper sampling rate so the flame chart has plenty
+   of detail without being dominated by profiler overhead.
+3. Hands the resulting samples to Perfetto and renders an interactive chart
+   inline in your notebook.
+
+!!! warning "Your code runs multiple times"
+    Because of the calibration loop, `@perfetto` evaluates the expression
+    several times. Don't use it on code with side effects — see
+    [Profiling pre-collected data](@ref) below.
 
 ## Step 3 — Reading the flame chart
 
@@ -67,7 +73,7 @@ gun: replace `2:(n-1)` with `2:isqrt(n)` and re-run.
 After your fix:
 
 ```julia
-@perfetto_view count_primes(50_000)
+@perfetto count_primes(50_000)
 ```
 
 The `is_prime` bar should shrink dramatically. Profiling isn't just for
@@ -75,16 +81,20 @@ The `is_prime` bar should shrink dramatically. Profiling isn't just for
 
 ## Which macro to use?
 
-- **`@perfetto expr`** / **`@perfetto_view expr`** — profiles `expr` and renders
-  the chart inline in a Pluto, VS Code, or Jupyter notebook. `@perfetto` is an
-  exported alias for `@perfetto_view`.
-- **`@perfetto_open expr`** — profiles `expr` and opens the chart in your default
-  web browser. Use this in the plain REPL.
+- **`@perfetto expr`** / **`@perfetto_view expr`** — profiles `expr` and
+  renders the chart inline in a Pluto, VS Code, or Jupyter notebook.
+  `@perfetto` is an exported alias for `@perfetto_view`.
+- **`@perfetto_open expr`** — profiles `expr` and opens the chart in your
+  default web browser. Use this in the plain REPL.
 
-## Profiling without the macro
+Both macros accept the same trailing `key = value` calibration options —
+see [Tuning the profiler](@ref).
 
-Sometimes you already have profile data — maybe collected with `Profile.@profile`
-directly, or from a long-running session. Two options:
+## Profiling pre-collected data
+
+If your workload has side effects, or you already have profile data —
+maybe collected with `Profile.@profile` directly, or from a long-running
+session — skip the macro and call the function form:
 
 ```julia
 # View what's already in the Profile buffer (in an IDE)
@@ -94,14 +104,13 @@ perfetto_view()
 perfetto_open()
 ```
 
-Both accept the same `data, lidict` pair that `Profile.fetch` returns, so you
-can also do:
+Both accept the same `data, lidict` pair that `Profile.fetch` returns:
 
 ```julia
-using Profile
+using Profile, ProfilePerfetto
 
 Profile.clear()
-Profile.@profile my_workload()
+Profile.@profile my_workload()        # runs exactly once
 
 data   = Profile.fetch(; include_meta = true)
 lidict = Profile.getdict(data)
@@ -114,13 +123,9 @@ perfetto_view(data, lidict; name = "Today's run")
 !!! warning "The first run includes compilation time"
     Julia compiles each method the first time it runs. That compilation shows
     up in your flame chart as `jl_type_infer`, `Core.Compiler.*`, or similar.
-    **Always run your workload once before profiling**, so you're measuring
-    the steady-state, not the compile.
-
-!!! warning "Too-fast workloads produce empty charts"
-    The default sampler fires roughly every 1 ms. If your code finishes in
-    under a millisecond you'll collect zero samples. Either wrap it in a loop
-    or lower the sampling delay — see [Tuning the profiler](@ref).
+    `@perfetto`'s calibration loop runs your code several times, so by the
+    final, displayed run things are usually warm — but if you want to be
+    sure, run your workload once before profiling.
 
 !!! tip "Threaded code shows up on separate rows"
     Each OS thread gets its own track in the chart. Great for spotting one

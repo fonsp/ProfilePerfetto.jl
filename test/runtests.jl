@@ -48,25 +48,21 @@ using JSON
     end
 
     @testset "@perfetto runs and returns a PerfettoDisplay" begin
-        disp = @perfetto sum(sin, 1:10_000)
+        disp = @perfetto sum(sin, 1:10_000) max_rounds=1
         @test disp isa ProfilePerfetto.PerfettoDisplay
     end
 
-    @testset "@autoperfetto accepts kwargs" begin
-        # Without kwargs
-        disp = @autoperfetto sum(sin, 1:10_000) max_rounds=1
-        @test disp isa ProfilePerfetto.PerfettoDisplay
-
+    @testset "@perfetto accepts kwargs" begin
         # Multiple kwargs forwarded to _autocalibrate
-        disp2 = @autoperfetto sum(sin, 1:10_000) max_rounds=2 min_delay=1e-4 initial_delay=0.01
+        disp2 = @perfetto sum(sin, 1:10_000) max_rounds=2 min_delay=1e-4 initial_delay=0.01
         @test disp2 isa ProfilePerfetto.PerfettoDisplay
 
         # kwargs values are evaluated in caller scope
         local_rounds = 1
-        disp3 = @autoperfetto sum(sin, 1:10_000) max_rounds=local_rounds
+        disp3 = @perfetto sum(sin, 1:10_000) max_rounds=local_rounds
         @test disp3 isa ProfilePerfetto.PerfettoDisplay
 
         # Non-`key = value` trailing arg is rejected at macro expansion
-        @test_throws Exception @eval @autoperfetto sum(sin, 1:10_000) 42
+        @test_throws Exception @eval @perfetto sum(sin, 1:10_000) 42
     end
 end

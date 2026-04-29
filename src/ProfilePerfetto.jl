@@ -1,7 +1,6 @@
 module ProfilePerfetto
 
-export @perfetto, @perfetto_open, @perfetto_view, perfetto_view, perfetto_open,
-    @autoperfetto, @autoperfetto_open, @autoperfetto_view
+export @perfetto, @perfetto_open, @perfetto_view, perfetto_view, perfetto_open
 
 import Profile
 import JSON
@@ -13,7 +12,7 @@ include("samples.jl")
 include("json.jl")
 include("display.jl")
 include("view.jl")
-include("macro.jl")
 include("autocalibrate.jl")
+include("macro.jl")
 
 end # module
