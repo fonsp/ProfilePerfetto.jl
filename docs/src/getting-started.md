@@ -94,17 +94,7 @@ see [Tuning the profiler](@ref).
 
 If your workload has side effects, or you already have profile data —
 maybe collected with `Profile.@profile` directly, or from a long-running
-session — skip the macro and call the function form:
-
-```julia
-# View what's already in the Profile buffer (in an IDE)
-perfetto_view()
-
-# Create HTML file and open in your browser (works anywhere, including the plain REPL)
-perfetto_open()
-```
-
-Both accept the same `data, lidict` pair that `Profile.fetch` returns:
+session — skip the macro and drive `Profile` yourself:
 
 ```julia
 using Profile, ProfilePerfetto
@@ -112,11 +102,10 @@ using Profile, ProfilePerfetto
 Profile.clear()
 Profile.@profile my_workload()        # runs exactly once
 
-data   = Profile.fetch(; include_meta = true)
-lidict = Profile.getdict(data)
-
-perfetto_view(data, lidict; name = "Today's run")
+perfetto_view()                       # or perfetto_open() in the REPL
 ```
+
+See [Using `Profile.@profile` manually](@ref) for the full walkthrough.
 
 ## Common gotchas
 
