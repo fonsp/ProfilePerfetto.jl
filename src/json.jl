@@ -1,5 +1,30 @@
 ### ---- Perfetto JSON generation
 
+# Perfetto recognizes a fixed set of named colors for `cname` on slices.
+# We pick from a curated subset that produces visually distinct hues so that
+# different modules get different colors in the flame graph.
+const _PERFETTO_PALETTE = String[
+    "thread_state_uninterruptible",
+    "thread_state_iowait",
+    "thread_state_running",
+    "thread_state_runnable",
+    "rail_response",
+    "rail_animation",
+    "rail_idle",
+    "rail_load",
+    "good",
+    "yellow",
+    "olive",
+    "generic_work",
+]
+
+# Stable module → color mapping. Empty module string means we don't know the
+# module (C frames, raw ips) — leave color unset and let Perfetto pick.
+function _module_color(mod::AbstractString)
+    isempty(mod) && return nothing
+    return _PERFETTO_PALETTE[mod1(Int(hash(mod) % UInt(length(_PERFETTO_PALETTE))) + 1, length(_PERFETTO_PALETTE))]
+end
+
 # Walk through samples per thread in timestamp order and emit Begin/End events
 # such that adjacent samples sharing a common stack prefix merge into a span.
 function _samples_to_perfetto_json(
@@ -53,7 +78,7 @@ function _samples_to_perfetto_json(
             for s in thread_samples
         ]
 
-        prev = Tuple{String,String,Int}[]
+        prev = Tuple{String,String,Int,String}[]
         last_t::Float64 = 0.0
         for (stack, t) in zip(stacks, ts_us)
             last_t = t
@@ -86,18 +111,20 @@ function _samples_to_perfetto_json(
                 )
             end
             for j in (k+1):length(stack)
-                name, file, line = stack[j]
-                push!(
-                    events,
-                    Dict(
-                        "ph" => "B",
-                        "pid" => 1,
-                        "tid" => tid,
-                        "ts" => t,
-                        "name" => name,
-                        "args" => Dict("file" => file, "line" => line),
-                    ),
+                name, file, line, modname = stack[j]
+                ev = Dict{String,Any}(
+                    "ph" => "B",
+                    "pid" => 1,
+                    "tid" => tid,
+                    "ts" => t,
+                    "name" => name,
+                    "args" => Dict("file" => file, "line" => line, "module" => modname),
                 )
+                color = _module_color(modname)
+                if color !== nothing
+                    ev["cname"] = color
+                end
+                push!(events, ev)
             end
             prev = stack
             last_t = t

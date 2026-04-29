@@ -20,6 +20,6 @@ const _PERFETTO_TIPS = [
     "Right-click a slice and choose <em>Show in Query</em> to explore the trace with SQL.",
     "Use <kbd>Ctrl</kbd>+<kbd>F</kbd> (or <kbd>⌘</kbd>+<kbd>F</kbd>) to re-focus the search box at any time.",
     "You can drop any Perfetto trace file onto the Perfetto window to open it — great for comparing profiles.",
-    "Slices are colored by name: functions with the same name share a color, which helps spot hot code paths.",
+    "Slices are colored by the module the function is defined in — so all <code>Base</code> calls share one color, your package gets another, etc.",
     "Double-click a slice to zoom the timeline to exactly its extent.",
 ]
