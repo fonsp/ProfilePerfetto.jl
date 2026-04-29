@@ -26,10 +26,16 @@ function perfetto_view(
     b64 = Base64.base64encode(json_contents)
     id = String(rand('a':'z', 10))
     html = """
-        <div style="width: 100%; height: clamp(650px, 90vh, 1000px);">
+        <div style="
+          width: 100%; 
+          height: clamp(650px, 90vh, 1000px);     
+          position: relative;
+          ">
         <iframe id="$id" src="https://ui.perfetto.dev"
           style="width:100%;height:100%;border:7px solid yellow;border-radius: 12px; box-sizing: border-box;"></iframe>
+        
           $(_overlay_html())
+        
         <script>
         const b64 = "$b64";
         const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
