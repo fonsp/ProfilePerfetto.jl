@@ -1,4 +1,31 @@
 """
+    perfetto_json(data = Profile.fetch(; include_meta = true),
+                         lidict = Profile.getdict(data);
+                         filter_sentinel = false,
+                         wall_time_ns = nothing)
+
+Convert Julia profile sample data to a [Perfetto](https://ui.perfetto.dev)
+trace-event JSON string and return it as a `String`. Useful for saving the
+trace to a file or piping it to another tool.
+
+See also: [`perfetto_view`](@ref), [`perfetto_open`](@ref).
+"""
+function perfetto_json(
+    data::Vector{UInt64} = Profile.fetch(; include_meta = true),
+    lidict = Profile.getdict(data);
+    filter_sentinel::Bool = false,
+    wall_time_ns::Union{Nothing,UInt64} = nothing,
+)
+    return _samples_to_perfetto_json(
+        data,
+        lidict;
+        sample_interval_us = _profile_delay_us(),
+        filter_sentinel,
+        wall_time_ns,
+    )
+end
+
+"""
     perfetto_view(data = Profile.fetch(; include_meta = false),
                          lidict = Profile.getdict(data);
                          name = "Julia profile")
