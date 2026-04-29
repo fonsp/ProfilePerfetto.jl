@@ -23,6 +23,7 @@ makedocs(;
         "Home" => "index.md",
         "Getting started" => "getting-started.md",
         "Tuning the profiler" => "tuning.md",
+        "Using `Profile.@profile` manually" => "manual-profile.md",
         "API reference" => "api.md",
     ],
     warnonly = [:missing_docs, :cross_references],
