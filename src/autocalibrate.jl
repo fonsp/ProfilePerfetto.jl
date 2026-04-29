@@ -116,16 +116,29 @@ function _autocalibrate(
     return data, lidict, wall_ns
 end
 
-function _autoperfetto_macro(f, expr)
+function _parse_kw_args(args)
+    kws = Expr[]
+    for a in args
+        if isa(a, Expr) && a.head === :(=) && isa(a.args[1], Symbol)
+            push!(kws, Expr(:kw, a.args[1], esc(a.args[2])))
+        else
+            error("@autoperfetto: expected `key = value` argument, got $(a)")
+        end
+    end
+    return kws
+end
+
+function _autoperfetto_macro(f, expr, kw_args)
+    kws = _parse_kw_args(kw_args)
     quote
         local _data, _lidict, _wall_ns =
-            $(_autocalibrate)(() -> $(esc(expr)))
+            $(_autocalibrate)(() -> $(esc(expr)); $(kws...))
         $(f)(_data, _lidict; filter_sentinel = true, wall_time_ns = _wall_ns)
     end
 end
 
 """
-    @autoperfetto expr
+    @autoperfetto expr [key=value ...]
 
 Like [`@perfetto`](@ref), but automatically tunes the profile sampling rate.
 
@@ -139,27 +152,59 @@ workloads without the caller having to pick a `delay` by hand.
 The expression is executed **multiple times**. Don't use it on code with
 observable side effects; use [`@perfetto`](@ref) instead.
 
+# Calibration options
+
+You can tune how the calibration loop searches for a sampling delay by
+passing trailing `key = value` arguments (same syntax as `BenchmarkTools`'
+`@btime`). These do **not** affect what `expr` does — they only steer the
+auto-tuning that picks the sample rate.
+
+- `initial_delay::Float64` (default `0.01`, i.e. 10 ms) — the sampling delay
+  used for the very first calibration round. The first round is meant to be
+  coarse and cheap, just to learn how long `expr` takes.
+- `min_delay::Float64` (default `1e-7`, i.e. 0.1 μs) — a hard floor on the
+  sampling delay. Calibration will never sharpen below this. Raise it if
+  you're seeing huge profile overhead on very fast workloads.
+- `buffer_slots::Int` (default `10_000_000`, ~80 MB) — size of the profile
+  sample buffer. The loop targets ~50% fill; if your traces are getting
+  truncated, increase this.
+- `max_rounds::Int` (default `6`) — maximum number of calibration runs of
+  `expr`. Lower this if you want fewer repetitions; raise it if convergence
+  warnings appear.
+- `max_inflation::Float64` (default `10.0`) — the largest allowed ratio of
+  measured wall time to the overhead-free baseline (`T_measured / T_raw`).
+  Calibration backs off the delay so that profiler overhead doesn't blow
+  up the runtime by more than this factor.
+- `max_step::Float64` (default `8.0`) — maximum factor by which the delay
+  is allowed to shrink between consecutive rounds. Prevents overshooting
+  before per-sample overhead has been estimated reliably.
+
 # Example
 ```julia
 using ProfilePerfetto
 
 @autoperfetto my_expensive_function(args...)
+
+# Cap calibration at 4 rounds and don't sharpen below 10 μs:
+@autoperfetto my_expensive_function(args...) max_rounds=4 min_delay=1e-5
 ```
 """
-macro autoperfetto(expr)
-    _autoperfetto_macro(:perfetto_view, expr)
+macro autoperfetto(expr, kw_args...)
+    _autoperfetto_macro(:perfetto_view, expr, kw_args)
 end
 
 const var"@autoperfetto_view" = var"@autoperfetto"
 
 """
-    @autoperfetto_open expr
+    @autoperfetto_open expr [key=value ...]
 
 Like [`@autoperfetto`](@ref), but opens the resulting flame chart in a web
 browser instead of returning an inline display.
 
 The expression is executed **multiple times**; see [`@autoperfetto`](@ref).
+The same trailing `key = value` calibration options are accepted — see
+[`@autoperfetto`](@ref) for the full list.
 """
-macro autoperfetto_open(expr)
-    _autoperfetto_macro(:perfetto_open, expr)
+macro autoperfetto_open(expr, kw_args...)
+    _autoperfetto_macro(:perfetto_open, expr, kw_args)
 end

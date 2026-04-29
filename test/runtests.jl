@@ -51,4 +51,22 @@ using JSON
         disp = @perfetto sum(sin, 1:10_000)
         @test disp isa ProfilePerfetto.PerfettoDisplay
     end
+
+    @testset "@autoperfetto accepts kwargs" begin
+        # Without kwargs
+        disp = @autoperfetto sum(sin, 1:10_000) max_rounds=1
+        @test disp isa ProfilePerfetto.PerfettoDisplay
+
+        # Multiple kwargs forwarded to _autocalibrate
+        disp2 = @autoperfetto sum(sin, 1:10_000) max_rounds=2 min_delay=1e-4 initial_delay=0.01
+        @test disp2 isa ProfilePerfetto.PerfettoDisplay
+
+        # kwargs values are evaluated in caller scope
+        local_rounds = 1
+        disp3 = @autoperfetto sum(sin, 1:10_000) max_rounds=local_rounds
+        @test disp3 isa ProfilePerfetto.PerfettoDisplay
+
+        # Non-`key = value` trailing arg is rejected at macro expansion
+        @test_throws Exception @eval @autoperfetto sum(sin, 1:10_000) 42
+    end
 end
