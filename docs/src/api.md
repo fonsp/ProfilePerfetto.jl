@@ -12,6 +12,7 @@ CurrentModule = ProfilePerfetto
 @perfetto_open
 perfetto_view
 perfetto_open
+perfetto_json
 PerfettoDisplay
 ```
 
