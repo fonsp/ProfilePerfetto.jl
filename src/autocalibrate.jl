@@ -152,12 +152,9 @@ workloads without the caller having to pick a `delay` by hand.
 The expression is executed **multiple times**. Don't use it on code with
 observable side effects; use [`@perfetto`](@ref) instead.
 
-# Calibration options
-
+# Sampling rate calibration options
 You can tune how the calibration loop searches for a sampling delay by
-passing trailing `key = value` arguments (same syntax as `BenchmarkTools`'
-`@btime`). These do **not** affect what `expr` does — they only steer the
-auto-tuning that picks the sample rate.
+passing trailing `key = value` arguments.
 
 - `initial_delay::Float64` (default `0.01`, i.e. 10 ms) — the sampling delay
   used for the very first calibration round. The first round is meant to be
