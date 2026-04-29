@@ -94,8 +94,9 @@ function _autocalibrate(
         # Workload too short to sample meaningfully: any further sharpening
         # just adds profiler overhead without collecting samples.
         too_fast  = round_i > 1 && used == 0 && delay < T_raw
-        # Next round would be coarser than the current one — buffer fill or
-        # overhead constraints are pushing us back. Keep the current result.
+        # Buffer-fill or overhead constraints want a coarser delay than we
+        # already ran. Running another round would just waste it and produce
+        # a worse trace than the one in hand — keep the current result.
         coarser   = target > delay
 
         if frac > 0.95
