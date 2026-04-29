@@ -28,5 +28,5 @@ In this video, you see some of the features of Perfetto in action.
 https://github.com/user-attachments/assets/be74a099-0ab1-4b71-9fb3-44e3925083f2
 
 
-# Written by AI
-This package was vibe coded by Fons, using Claude Code.
+# Written with AI help
+This package was mostly vibe coded by Fons, using Claude Code. All code has been reviewed by a human.
