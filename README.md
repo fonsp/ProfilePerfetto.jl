@@ -2,11 +2,11 @@
 
 [![Docs](https://img.shields.io/badge/docs-stable-blue.svg)](http://fonsp.github.io/ProfilePerfetto.jl/stable/)
 
-The goal of this package is to give a super-simple-to-use profiling tool, but still provide a nice UI with some features like a flame chart.
+The goal of this package is to give a super-simple-to-use profiling tool, but still provide a nice UI with some features like a flame chart. 
 
-Use ProfilePerfetto.jl to view Julia profiles as an interactive [Perfetto](https://perfetto.dev) trace/flame chart. You can view a profile directly in Pluto, VS Code and Jupyter. Or launch Perfetto in your default browser from the REPL.
+Use ProfilePerfetto.jl to view Julia profiles as an interactive [Perfetto](https://perfetto.dev) trace/flame chart. You can view a profile directly in Pluto, VS Code and Jupyter. Or launch Perfetto in your default browser from the REPL with your profile pre-loaded. ProfilePerfetto has minimal dependencies (perfetto is loaded via the browser), and loads very quickly.
 
-The sampling rate is **calibrated automatically**, so you get useful flame charts for both millisecond-scale and second-scale workloads without picking a `delay` by hand.
+
 
 # Example
 To create a profile and view it directly:
@@ -17,8 +17,8 @@ using ProfilePerfetto
 @perfetto my_expensive_function(args...)
 ```
 
-> [!WARNING]
-> `@perfetto` runs your code **multiple times** while it calibrates the sampling rate. Don't use it on code with observable side effects — wrap the workload in something idempotent first, or use `perfetto_view` on profile data you collected yourself.
+> [!INFO]
+> `@perfetto` runs your code **multiple times** while it calibrates the sampling rate. You can disable this with `max_rounds=1`, or use `perfetto_view` on profile data you collected yourself.
 
 ![Perfetto traces](docs/src/assets/perfetto%20traces.png)
 
