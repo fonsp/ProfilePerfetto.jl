@@ -62,7 +62,7 @@ Things you can do:
 | Pan               | Click and drag, or use `A` / `D`           |
 | Zoom              | Scroll, or use `W` / `S`                   |
 | See details       | Click a bar — file and line appear at the bottom |
-| Select a range    | Shift-drag — total time & counts in sidebar |
+| Select a range    | Click-and-drag — total time & counts in sidebar |
 
 In our prime-counting example, you'll see `is_prime` dominating the chart,
 with most of the time spent inside its inner `for` loop. That's the smoking
