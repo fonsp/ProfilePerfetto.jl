@@ -3,11 +3,18 @@
 
 function _perfetto_macro(f, expr)
     quote
+        # Clear
         Profile.clear()
         local _t0 = time_ns()
+        
+        # Run user code
         Profile.@profile 🐔🚀🧦(() -> $(esc(expr)))
+        
+        # Process
         local _wall_ns = time_ns() - _t0
         data, lidict = Profile.retrieve(; include_meta = true)
+        
+        # Show data
         $(f)(data, lidict; filter_sentinel = true, wall_time_ns = _wall_ns)
     end
 end
