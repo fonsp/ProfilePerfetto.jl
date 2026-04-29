@@ -94,6 +94,10 @@ function _autocalibrate(
         # Workload too short to sample meaningfully: any further sharpening
         # just adds profiler overhead without collecting samples.
         too_fast  = round_i > 1 && used == 0 && delay < T_raw
+        # Buffer-fill or overhead constraints want a coarser delay than we
+        # already ran. Running another round would just waste it and produce
+        # a worse trace than the one in hand — keep the current result.
+        coarser   = target > delay
 
         if frac > 0.95
             @warn "@perfetto: buffer filled at Δ=$(_fmt_delay(delay)); trace truncated. Consider raising `min_delay`."
@@ -102,7 +106,7 @@ function _autocalibrate(
             @warn "@perfetto: sampling overhead inflated runtime $(round(inflation; digits = 1))× at Δ=$(_fmt_delay(delay))."
         end
 
-        if at_floor || converged || last_one || too_fast
+        if at_floor || converged || last_one || too_fast || coarser
             @info "@perfetto: $(_fmt_time(T)) at Δ=$(_fmt_delay(delay)) " *
                   "($(round(Int, 100frac))% buffer, $(round(inflation; digits = 1))× baseline, round $round_i)"
             break
