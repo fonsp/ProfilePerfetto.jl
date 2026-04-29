@@ -1,5 +1,9 @@
 ### ---- Perfetto JSON generation
 
+# The track id we place GC slices on. Julia thread ids start at 1, so 0 is free
+# for our synthetic GC track.
+const _GC_TRACK_TID = 0
+
 # Walk through samples per thread in timestamp order and emit Begin/End events
 # such that adjacent samples sharing a common stack prefix merge into a span.
 function _samples_to_perfetto_json(
@@ -8,18 +12,21 @@ function _samples_to_perfetto_json(
     sample_interval_us::Float64 = 1000.0,
     filter_sentinel::Bool = false,
     wall_time_ns::Union{Nothing,UInt64} = nothing,
+    gc_events::Vector{GCEvent} = GCEvent[],
 )
     samples = _parse_samples(data)
     events = Any[]
-    isempty(samples) && return JSON.json(
-        Dict(
-            "traceEvents" => events,
-            "metadata" => Dict(
-                "clock-domain" => "MONO",
-                "command_line" => "Julia Profile",
+    if isempty(samples) && isempty(gc_events)
+        return JSON.json(
+            Dict(
+                "traceEvents" => events,
+                "metadata" => Dict(
+                    "clock-domain" => "MONO",
+                    "command_line" => "Julia Profile",
+                ),
             ),
-        ),
-    )
+        )
+    end
 
     # Group by thread and sort by tick timestamp so each thread has a contiguous
     # sample stream, independent of interleaving in the raw buffer.
@@ -37,8 +44,8 @@ function _samples_to_perfetto_json(
     # profile ran for, derive ns-per-tick from the sample tick span. Otherwise
     # assume ticks ≈ ns, which is wrong on every real platform but at least
     # produces a trace that loads.
-    t0_ticks = minimum(s.timestamp_ticks for s in samples)
-    t1_ticks = maximum(s.timestamp_ticks for s in samples)
+    t0_ticks = isempty(samples) ? typemax(UInt64) : minimum(s.timestamp_ticks for s in samples)
+    t1_ticks = isempty(samples) ? UInt64(0) : maximum(s.timestamp_ticks for s in samples)
     ns_per_tick::Float64 = 1.0
     if wall_time_ns !== nothing && t1_ticks > t0_ticks
         ns_per_tick = Float64(wall_time_ns) / Float64(t1_ticks - t0_ticks)
@@ -114,6 +121,46 @@ function _samples_to_perfetto_json(
                     "tid" => tid,
                     "ts" => final_t,
                     "name" => prev[j][1],
+                ),
+            )
+        end
+    end
+
+    if !isempty(gc_events)
+        push!(
+            events,
+            Dict(
+                "ph" => "M",
+                "name" => "thread_name",
+                "pid" => 1,
+                "tid" => _GC_TRACK_TID,
+                "args" => Dict("name" => "GC"),
+            ),
+        )
+        # GC timestamps come from jl_hrtime (nanoseconds). Normalize relative to
+        # the earliest GC start so the GC track begins at t=0. When profile samples
+        # are also present their tick-based timeline is independently normalized to
+        # t=0 — the two tracks share the same visual origin but absolute alignment
+        # requires a tick↔ns anchor that we don't currently thread through.
+        t0_ns = minimum(e.start_ns for e in gc_events)
+        for e in gc_events
+            start_us = Float64(Int64(e.start_ns) - Int64(t0_ns)) / 1000
+            dur_us = Float64(Int64(e.end_ns) - Int64(e.start_ns)) / 1000
+            push!(
+                events,
+                Dict(
+                    "ph" => "X",
+                    "pid" => 1,
+                    "tid" => _GC_TRACK_TID,
+                    "ts" => start_us,
+                    "dur" => dur_us,
+                    "name" => e.full ? "GC (full)" : "GC (incremental)",
+                    "cat" => "gc",
+                    "args" => Dict(
+                        "full" => e.full,
+                        "thread_id" => e.thread_id,
+                        "duration_ms" => dur_us / 1000,
+                    ),
                 ),
             )
         end
